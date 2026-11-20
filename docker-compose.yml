@@ -1,0 +1,29 @@
+services:
+  mongo:
+    image: mongo:7
+    volumes:
+      - mongo-data:/data/db
+
+  backend:
+    build: ./backend
+    environment:
+      PORT: 5000
+      MONGO_URI: mongodb://mongo:27017/factoryflow
+      JWT_SECRET: ${JWT_SECRET:-change_me_in_env}
+      JWT_EXPIRES_IN: 1d
+      CORS_ORIGIN: http://localhost:8080
+    depends_on:
+      - mongo
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  mongo-data:
